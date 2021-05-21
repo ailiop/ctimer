@@ -42,11 +42,8 @@
  *      #include <stdio.h>
  *      #include "ctimer.h"
  *
- *      // [C ONLY] external linkage for `ctimer.h` functions
- *      // (*once per translation unit*)
- *      #ifndef __cplusplus
- *      __CTIMER_EXTERN_INLINE_DECL;
- *      #endif // __cplusplus
+ *      // external linkage for `ctimer.h` functions (*once per translation unit*)
+  *      __CTIMER_EXTERN_INLINE_DECL; // only expands in C, not C++
  *
  *      int main () {
  *          ctimer_t t;
@@ -295,10 +292,11 @@ inline long timespec_nsec (timespec_t const t) {
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* end extern "C" */
 #endif
 
 
+#ifndef __cplusplus             /* C */
 /**
  * Convenience macro for declaring all `ctimer.h` functions as `extern inline`
  * in a .c file.
@@ -307,15 +305,18 @@ inline long timespec_nsec (timespec_t const t) {
  * required when compiling with a C compiler (which must be C99-compliant).
  */
 #define __CTIMER_EXTERN_INLINE_DECL \
-    extern inline void ctimer_start( ctimer_t * );                                       \
-    extern inline void ctimer_stop( ctimer_t * );                                        \
-    extern inline void ctimer_measure( ctimer_t * );                                     \
-    extern inline void timespec_sub( timespec_t *, timespec_t const, timespec_t const ); \
-    extern inline void timespec_add( timespec_t *, timespec_t const );                   \
-    extern inline double timespec_sec( timespec_t const );                               \
-    extern inline long timespec_msec( timespec_t const );                                \
-    extern inline long timespec_usec( timespec_t const );                                \
-    extern inline long timespec_nsec( timespec_t const );
+    extern inline void ctimer_start (ctimer_t *);                                       \
+    extern inline void ctimer_stop (ctimer_t *);                                        \
+    extern inline void ctimer_measure (ctimer_t *);                                     \
+    extern inline void timespec_sub (timespec_t *, timespec_t const, timespec_t const); \
+    extern inline void timespec_add (timespec_t *, timespec_t const);                   \
+    extern inline double timespec_sec (timespec_t const);                               \
+    extern inline long timespec_msec (timespec_t const);                                \
+    extern inline long timespec_usec (timespec_t const);                                \
+    extern inline long timespec_nsec (timespec_t const);
+#else  /* C++ */
+#define __CTIMER_EXTERN_INLINE_DECL
+#endif  /* !(__cplusplus) */
 
 
 
