@@ -2,57 +2,74 @@
 
 *** Overview
 
-- =ctimer_t=         :: stopwatch struct (start/stop/elapsed timespecs)
-- =ctimer_start()=   :: start stopwatch
-- =ctimer_stop()=    :: stop stopwatch
-- =ctimer_measure()= :: measure elapsed time between start & stop
+CTimer is an include-only header library with C/C++ timer utilities using POSIX
+~clock_gettime()~.
 
-- =timespec_t=       :: alias for =struct timespec=
-- =timespec_sub()=   :: calculate difference between 2 timespecs
-- =timespec_add()=   :: calculate sum of 2 timespecs
-- =timespec_sec()=   :: timespec tv time in sec (double)
-- =timespec_msec()=  :: timespec tv time in msec (long)
-- =timespec_usec()=  :: timespec tv time in usec (long)
-- =timespec_nsec()=  :: timespec tv time in nsec (long)
+**** Stopwatch utilities
+
+- ~ctimer_t~         :: stopwatch struct (start/stop/elapsed timespecs)
+- ~ctimer_start()~   :: start stopwatch
+- ~ctimer_stop()~    :: stop stopwatch
+- ~ctimer_reset()~   :: reset elapsed time
+- ~ctimer_measure()~ :: measure elapsed time between start & stop
+- ~ctimer_lap()~     :: accumulate elapsed time between start & stop
+
+**** Timespec struct utilities
+
+- ~timespec_t~       :: alias for ~struct timespec~
+- ~timespec_sub()~   :: calculate difference between 2 timespecs
+- ~timespec_add()~   :: calculate sum of 2 timespecs
+- ~timespec_sec()~   :: timespec tv time in sec (double)
+- ~timespec_msec()~  :: timespec tv time in msec (long)
+- ~timespec_usec()~  :: timespec tv time in usec (long)
+- ~timespec_nsec()~  :: timespec tv time in nsec (long)
 
 *** Requirements
 
-Timers in =ctimer.h= are implemented using [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] (with a
-=CLOCK_MONOTONIC= clock).  C compilers may require standard ~c99~ or ~gnu99~ (or
+Timers in =ctimer.h= are implemented using [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] with a
+=CLOCK_MONOTONIC= clock.  C compilers may require standard ~c99~ or ~gnu99~ (or
 later).
 
-All functions are defined as =inline=.  In C, following the C99 standard, each
-translation unit that uses them must provide corresponding =extern inline=
-declarations; to facilitate this, a macro =__CTIMER_EXTERN_INLINE_DECL= is
+All functions are defined as ~inline~.  In C, following the C99 standard, each
+translation unit that uses them must provide corresponding ~extern inline~
+declarations.  To facilitate this, a macro =__CTIMER_EXTERN_INLINE_DECL= is
 provided, which expands to all such declarations.  In C++, no such declarations
-are necessary.
+are necessary and the =CTIMER_EXTERN_INLINE_DECL= macro expands to the empty
+string.
 
 *** Notes
 
 There are no guarantees regarding the initial values of timespec fields in a
-=ctimer_t= stopwatch.  Querying timespecs that haven't been initialized or
+~ctimer_t~ stopwatch.  Querying timespecs that haven't been initialized or
 measured may return arbitrary results; this includes measuring the elapsed time
 of an unstopped stopwatch.
 
+The =elapsed= timespec of a ~ctimer_t~ stopwatch can be reset to 0 using the
+~ctimer_reset()~ function.  This is not necessary if timings are only measured
+using ~ctimer_measure()~, but it /is/ necessary before using ~ctimer_lap()~ with
+an otherwise un-measured stopwatch.
+
 If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined, then
-=ctimer_stop()= also calls =ctimer_measure()= internally to calculate and store
-the elapsed time in the input =ctimer_t= object.
+~ctimer_stop()~ also calls ~ctimer_measure()~ internally to calculate and store
+the elapsed time in the input ~ctimer_t~ object.
 
 *** Example usage
 
-#+begin_src c
+#+begin_src C
 #include <stdio.h>
+#include <unistd.h>
+
 #include "ctimer.h"
 
-// external linkage for `ctimer.h` functions (*once per translation unit*)
-__CTIMER_EXTERN_INLINE_DECL;  // only expands in C, not C++
+/* external linkage for `ctimer.h` functions (*once per translation unit*) */
+__CTIMER_EXTERN_INLINE_DECL;    /* only expands in C, not C++ */
 
 int main () {
     ctimer_t t;
     ctimer_start( &t );
-    do_some_work(); // <== time this!
+    sleep( 1 );
     ctimer_stop( &t );
-    ctimer_measure( &t ); // unnecessary if `CTIMER_MEASURE_ON_STOP` is #define'd
+    ctimer_measure( &t ); /* unnecessary if `CTIMER_MEASURE_ON_STOP` is #define'd */
     printf( "Elapsed time: %f s\n", timespec_sec( t.elapsed ) );
     printf( "Elapsed time: %ld ms\n", timespec_msec( t.elapsed ) );
     printf( "Elapsed time: %ld us\n", timespec_usec( t.elapsed ) );
