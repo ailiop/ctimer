@@ -9,7 +9,9 @@
  * - `ctimer_t`         :: stopwatch struct (start/stop/elapsed timespecs)
  * - `ctimer_start()`   :: start stopwatch
  * - `ctimer_stop()`    :: stop stopwatch
+ * - `ctimer_reset()`   :: reset stopwatch elapsed time
  * - `ctimer_measure()` :: measure elapsed time between start & stop
+ * - `ctimer_lap()`     :: accumulate elapsed time betweeen start & stop
  *
  * - `timespec_t`       :: alias for `struct timespec`
  * - `timespec_sub()`   :: calculate difference between 2 timespecs
@@ -193,7 +195,7 @@ inline void timespec_add (timespec_t       * t1,
 
 
 /**
- * Measure elapsed time of `ctimer_t` stopwatch in s+ns and store it in the
+ * Measure elapsed time of `ctimer_t` stopwatch in s+ns and *store* it in the
  * `elapsed` field.
  *
  * @param [in]  t       `ctimer_t` stopwatch pointer
@@ -205,6 +207,33 @@ inline void timespec_add (timespec_t       * t1,
  */
 inline void ctimer_measure (ctimer_t * t) {
     timespec_sub( &(t->elapsed), t->tic, t->toc );
+}
+
+
+/**
+ * Measure elapsed time of `ctimer_t` stopwatch in s+ns and *add* it to the
+ * `elapsed` field.
+ *
+ * @warning It is up to the user to ensure that the `elapsed` field of the input
+ * stopwarch has been properly initialized (e.g. with `ctimer_reset()`) before
+ * `ctimer_lap()` is called.
+ *
+ * @param [in]  t       `ctimer_t` stopwatch pointer
+ */
+inline void ctimer_lap (ctimer_t * t) {
+    timespec_t lap_buf;
+    timespec_sub( &lap_buf, t->tic, t->toc );
+    timespec_add( &(t->elapsed), lap_buf );
+}
+
+
+/**
+ * Zero out the `elapsed` field of a `ctimer_t` stopwatch.
+ *
+ * @param [in] t        `ctimer_t` stopwatch pointer
+ */
+inline void ctimer_reset (ctimer_t * t) {
+    t->elapsed = (timespec_t) {0};
 }
 
 
@@ -307,7 +336,9 @@ inline long timespec_nsec (timespec_t const t) {
 #define __CTIMER_EXTERN_INLINE_DECL \
     extern inline void ctimer_start (ctimer_t *);                                       \
     extern inline void ctimer_stop (ctimer_t *);                                        \
+    extern inline void ctimer_reset (ctimer_t *);                                       \
     extern inline void ctimer_measure (ctimer_t *);                                     \
+    extern inline void ctimer_lap (ctimer_t *);                                         \
     extern inline void timespec_sub (timespec_t *, timespec_t const, timespec_t const); \
     extern inline void timespec_add (timespec_t *, timespec_t const);                   \
     extern inline double timespec_sec (timespec_t const);                               \
