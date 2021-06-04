@@ -206,8 +206,8 @@ void timespec_add (
     timespec_t       * t1,      /**<[in,out] accumulation timer */
     timespec_t const   t2       /**<[in]     added timer */
 ) {
-    t1->tv_nsec = t1->tv_nsec + t2.tv_nsec;
-    t1->tv_sec  = t1->tv_sec  + t2.tv_sec;
+    t1->tv_nsec += t2.tv_nsec;
+    t1->tv_sec  += t2.tv_sec;
     if (t1->tv_nsec >= _NSEC_PER_SEC) {
         t1->tv_nsec -= _NSEC_PER_SEC;
         t1->tv_sec++;
@@ -318,8 +318,8 @@ void ctimer_measure (
  * `elapsed` timer.
  *
  * @warning It is up to the user to ensure that the `elapsed` field of the input
- *          stopwatch has been properly initialized (e.g. with `ctimer_reset()`)
- *          before `ctimer_lap()` is called.
+ * stopwatch has been properly initialized (e.g. with `ctimer_reset()`) before
+ * `ctimer_lap()` is called.
  */
 inline
 void ctimer_lap (
@@ -394,18 +394,18 @@ void ctimer_stop (
  * C99-compliant).  When compiling with a C++ compiler, the macro is still
  * defined but expands to the empty string.
  */
-#define __CTIMER_EXTERN_INLINE_DECL                                                     \
-    extern inline void ctimer_start (ctimer_t *);                                       \
-    extern inline void ctimer_stop (ctimer_t *);                                        \
-    extern inline void ctimer_reset (ctimer_t *);                                       \
-    extern inline void ctimer_measure (ctimer_t *);                                     \
-    extern inline void ctimer_lap (ctimer_t *);                                         \
+#define __CTIMER_EXTERN_INLINE_DECL \
     extern inline void timespec_sub (timespec_t *, timespec_t const, timespec_t const); \
     extern inline void timespec_add (timespec_t *, timespec_t const);                   \
     extern inline double timespec_sec (timespec_t const);                               \
     extern inline long timespec_msec (timespec_t const);                                \
     extern inline long timespec_usec (timespec_t const);                                \
-    extern inline long timespec_nsec (timespec_t const);
+    extern inline long timespec_nsec (timespec_t const);                                \
+    extern inline void ctimer_start (ctimer_t *);                                       \
+    extern inline void ctimer_stop (ctimer_t *);                                        \
+    extern inline void ctimer_reset (ctimer_t *);                                       \
+    extern inline void ctimer_measure (ctimer_t *);                                     \
+    extern inline void ctimer_lap (ctimer_t *);
 #else  /* C++ */
 #define __CTIMER_EXTERN_INLINE_DECL
 #endif  /* !(__cplusplus) */
