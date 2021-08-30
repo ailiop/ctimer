@@ -72,17 +72,6 @@
  * C compilers may require standard `gnu99` or later.  Older compilers may also
  * require linking with `-lrt`.
  *
- * @subsection extern_inline External linkage declarations in C
- *
- * All functions in `ctimer.h` are defined as `inline` (*not* `static inline`),
- * following the C99 standard.  When using a C compiler, each translation unit
- * that uses them must provide corresponding `extern inline` declarations.  To
- * facilitate this, `ctimer.h` defines a convenience macro
- * `__CTIMER_EXTERN_INLINE_DECL` which expands to all such declarations.
- *
- * This is not necessary when using a C++ compiler.  In this case, the
- * `__CTIMER_EXTERN_INLINE_DECL` macro will expand to an empty string.
- *
  * @subsection init Initialization
  *
  * There is no guarantee regarding the initial values of timespec fields in a
@@ -176,7 +165,7 @@ typedef struct timespec timespec_t;
  *
  * @sa <https://stackoverflow.com/a/53708448/1036677>
  */
-inline
+static inline
 void timespec_sub (
     timespec_t       * td,      /**<[out] time difference in s and ns */
     timespec_t const   t1,      /**<[in]  start time */
@@ -201,7 +190,7 @@ void timespec_sub (
  * the `tv_sec` and `tv_nsec` field, respectively, of the first `timespec`
  * operand.
  */
-inline
+static inline
 void timespec_add (
     timespec_t       * t1,      /**<[in,out] accumulation timer */
     timespec_t const   t2       /**<[in]     added timer */
@@ -220,7 +209,7 @@ void timespec_add (
  *
  * @return (t.tv_sec + tv_nsec) in sec
  */
-inline
+static inline
 double timespec_sec (
     timespec_t const t          /**<[in] timespec */
 ) {
@@ -234,7 +223,7 @@ double timespec_sec (
  *
  * @return (t.tv_sec + tv_nsec) in msec
  */
-inline
+static inline
 long timespec_msec (
     timespec_t const t          /**<[in] timespec */
 ) {
@@ -248,7 +237,7 @@ long timespec_msec (
  *
  * @return (t.tv_sec + tv_nsec) in usec
  */
-inline
+static inline
 long timespec_usec (
     timespec_t const t          /**<[in] timespec */
 ) {
@@ -262,7 +251,7 @@ long timespec_usec (
  *
  * @return (t.tv_sec + tv_nsec) in nsec
  */
-inline
+static inline
 long timespec_nsec (
     timespec_t const t          /**<[in] timespec */
 ) {
@@ -305,7 +294,7 @@ typedef struct {
  * @note It is safe (albeit unnecessary) to measure the elapsed time of a
  * stopped timer multiple times.
  */
-inline
+static inline
 void ctimer_measure (
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
@@ -321,7 +310,7 @@ void ctimer_measure (
  * stopwatch has been properly initialized (e.g. with `ctimer_reset()`) before
  * `ctimer_lap()` is called.
  */
-inline
+static inline
 void ctimer_lap (
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
@@ -334,7 +323,7 @@ void ctimer_lap (
 /**
  * Zero out the `elapsed` timer of a `ctimer_t` stopwatch.
  */
-inline
+static inline
 void ctimer_reset (
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
@@ -345,7 +334,7 @@ void ctimer_reset (
 /**
  * Start a `ctimer_t` stopwatch.  Sets the the `tic` timer of the stopwatch.
  */
-inline
+static inline
 void ctimer_start (
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
@@ -360,7 +349,7 @@ void ctimer_start (
  * `ctimer_stop` also calculates the elapsed time between `tic` and `toc` and
  * stores it in the `elapsed` field.
  */
-inline
+static inline
 void ctimer_stop (
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
@@ -377,38 +366,6 @@ void ctimer_stop (
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
-
-
-/* ==================================================
- * EXTERN INLINE DECLARATIONS MACRO
- * ================================================== */
-
-
-#ifndef __cplusplus             /* C */
-/**
- * Convenience macro for declaring all `ctimer.h` functions as `extern inline`
- * in a .c file.
- *
- * @warning This should be used *exactly once* per translation unit.  The macro
- * is only expanded when compiling with a C compiler (which must be
- * C99-compliant).  When compiling with a C++ compiler, the macro is still
- * defined but expands to the empty string.
- */
-#define __CTIMER_EXTERN_INLINE_DECL \
-    extern inline void timespec_sub (timespec_t *, timespec_t const, timespec_t const); \
-    extern inline void timespec_add (timespec_t *, timespec_t const);                   \
-    extern inline double timespec_sec (timespec_t const);                               \
-    extern inline long timespec_msec (timespec_t const);                                \
-    extern inline long timespec_usec (timespec_t const);                                \
-    extern inline long timespec_nsec (timespec_t const);                                \
-    extern inline void ctimer_start (ctimer_t *);                                       \
-    extern inline void ctimer_stop (ctimer_t *);                                        \
-    extern inline void ctimer_reset (ctimer_t *);                                       \
-    extern inline void ctimer_measure (ctimer_t *);                                     \
-    extern inline void ctimer_lap (ctimer_t *);
-#else  /* C++ */
-#define __CTIMER_EXTERN_INLINE_DECL
-#endif  /* !(__cplusplus) */
 
 
 /** @} */ /* end group ctimer */

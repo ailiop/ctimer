@@ -42,9 +42,6 @@
 
 #include "ctimer.h"
 
-/* external linkage for `ctimer.h` functions (*once per translation unit*) */
-__CTIMER_EXTERN_INLINE_DECL;    /* only expands in C, not C++ */
-
 int main () {
     ctimer_t t;
     ctimer_start( &t );

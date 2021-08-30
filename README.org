@@ -30,12 +30,7 @@ Timers in =ctimer.h= are implemented using [[https://man7.org/linux/man-pages/ma
 =CLOCK_MONOTONIC= clock.  C compilers may require standard ~c99~ or ~gnu99~ (or
 later).
 
-All functions are defined as ~inline~.  In C, following the C99 standard, each
-translation unit that uses them must provide corresponding ~extern inline~
-declarations.  To facilitate this, a macro =__CTIMER_EXTERN_INLINE_DECL= is
-provided, which expands to all such declarations.  In C++, no such declarations
-are necessary and the =CTIMER_EXTERN_INLINE_DECL= macro expands to the empty
-string.
+All functions are defined as ~static inline~.
 
 *** Notes
 
@@ -60,9 +55,6 @@ the elapsed time in the input ~ctimer_t~ object.
 #include <unistd.h>
 
 #include "ctimer.h"
-
-/* external linkage for `ctimer.h` functions (*once per translation unit*) */
-__CTIMER_EXTERN_INLINE_DECL;    /* only expands in C, not C++ */
 
 int main () {
     ctimer_t t;
