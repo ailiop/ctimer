@@ -42,16 +42,30 @@
 
 #include "ctimer.h"
 
-int main () {
-    ctimer_t t;
-    ctimer_start( &t );
-    sleep( 1 );
-    ctimer_stop( &t );
-    ctimer_measure( &t ); /* unnecessary if `CTIMER_MEASURE_ON_STOP` is #define'd */
-    printf( "Elapsed time: %f s\n", timespec_sec( t.elapsed ) );
-    printf( "Elapsed time: %ld ms\n", timespec_msec( t.elapsed ) );
-    printf( "Elapsed time: %ld us\n", timespec_usec( t.elapsed ) );
-    printf( "Elapsed time: %ld ns\n", timespec_nsec( t.elapsed ) );
+int main() {
+    ctimer_t t_total;
+    ctimer_t t_body;
+
+    ctimer_start( &t_total );
+    ctimer_reset( &t_body );
+
+    for (int i = 0; i < 5; ++i) {
+        ctimer_start( &t_body );
+
+        sleep( 1 );
+
+        ctimer_stop( &t_body );
+        ctimer_lap( &t_body );
+
+        printf( "Done with iteration #%d\n", i );
+    }
+
+    ctimer_stop( &t_total );
+    ctimer_measure( &t_total );
+
+    printf( "\n" );
+    ctimer_print( &t_total, "total" );
+    ctimer_print( &t_body, "loop body" );
     return 0;
 }
 /**! [ctimer_example] */
