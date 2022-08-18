@@ -7,22 +7,23 @@ CTimer is an include-only header library with C/C++ timer utilities using POSIX
 
 **** Stopwatch utilities
 
-- ~ctimer_t~         :: stopwatch struct (start/stop/elapsed timespecs)
-- ~ctimer_start()~   :: start stopwatch
-- ~ctimer_stop()~    :: stop stopwatch
-- ~ctimer_reset()~   :: reset elapsed time
-- ~ctimer_measure()~ :: measure elapsed time between start & stop
-- ~ctimer_lap()~     :: accumulate elapsed time between start & stop
+- ~ctimer_t~         : type of CTimer stopwatch struct
+- ~ctimer_start()~   : start stopwatch
+- ~ctimer_stop()~    : stop stopwatch
+- ~ctimer_reset()~   : reset elapsed time
+- ~ctimer_measure()~ : measure elapsed time between start & stop
+- ~ctimer_lap()~     : accumulate elapsed time between start & stop
+- ~ctimer_print()~   : print elapsed time in sec with fixed format
 
 **** Timespec struct utilities
 
-- ~timespec_t~       :: alias for ~struct timespec~
-- ~timespec_sub()~   :: calculate difference between 2 timespecs
-- ~timespec_add()~   :: calculate sum of 2 timespecs
-- ~timespec_sec()~   :: timespec tv time in sec (double)
-- ~timespec_msec()~  :: timespec tv time in msec (long)
-- ~timespec_usec()~  :: timespec tv time in usec (long)
-- ~timespec_nsec()~  :: timespec tv time in nsec (long)
+- ~timespec_t~       : alias for ~struct timespec~
+- ~timespec_sub()~   : calculate difference between 2 timespecs
+- ~timespec_add()~   : calculate sum of 2 timespecs
+- ~timespec_sec()~   : timespec tv time in sec (double)
+- ~timespec_msec()~  : timespec tv time in msec (long)
+- ~timespec_usec()~  : timespec tv time in usec (long)
+- ~timespec_nsec()~  : timespec tv time in nsec (long)
 
 *** Requirements
 
@@ -34,19 +35,25 @@ All functions are defined as ~static inline~.
 
 *** Notes
 
-There are no guarantees regarding the initial values of timespec fields in a
-~ctimer_t~ stopwatch.  Querying timespecs that haven't been initialized or
-measured may return arbitrary results; this includes measuring the elapsed time
-of an unstopped stopwatch.
+- A CTimer stopwatch struct contains three ~struct timespec~ fields:
+  - =tic= marks the beginning of timed region;
+  - =toc= marks the end of a timed region; and
+  - =elapsed= holds the (cumulative) elapsed time for timed region(s).
 
-The =elapsed= timespec of a ~ctimer_t~ stopwatch can be reset to 0 using the
-~ctimer_reset()~ function.  This is not necessary if timings are only measured
-using ~ctimer_measure()~, but it /is/ necessary before using ~ctimer_lap()~ with
-an otherwise un-measured stopwatch.
+- There are no guarantees regarding the initial values of timespec fields in a
+  ~ctimer_t~ stopwatch.  Querying timespecs that haven't been initialized or
+  measured may return arbitrary results; this includes measuring the elapsed
+  time of an unstopped stopwatch.
 
-If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined, then
-~ctimer_stop()~ also calls ~ctimer_measure()~ internally to calculate and store
-the elapsed time in the input ~ctimer_t~ object.
+- The =elapsed= timespec of a ~ctimer_t~ stopwatch can be reset to 0 using the
+  ~ctimer_reset()~ function.  This is not necessary if timings are only
+  measured using ~ctimer_measure()~, but it /is/ necessary before using
+  ~ctimer_lap()~ with an otherwise un-measured stopwatch.
+
+- If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined before
+  =ctimer.h= is included, then ~ctimer_stop()~ also calls ~ctimer_measure()~
+  internally to calculate and store the elapsed time in the input ~ctimer_t~
+  object.
 
 *** Example usage
 
@@ -56,16 +63,29 @@ the elapsed time in the input ~ctimer_t~ object.
 
 #include "ctimer.h"
 
-int main () {
-    ctimer_t t;
-    ctimer_start( &t );
-    sleep( 1 );
-    ctimer_stop( &t );
-    ctimer_measure( &t ); /* unnecessary if `CTIMER_MEASURE_ON_STOP` is #define'd */
-    printf( "Elapsed time: %f s\n", timespec_sec( t.elapsed ) );
-    printf( "Elapsed time: %ld ms\n", timespec_msec( t.elapsed ) );
-    printf( "Elapsed time: %ld us\n", timespec_usec( t.elapsed ) );
-    printf( "Elapsed time: %ld ns\n", timespec_nsec( t.elapsed ) );
+int main() {
+    ctimer_t t_total;
+    ctimer_t t_body;
+
+    ctimer_start( &t_total );
+    ctimer_reset( &t_body );
+
+    for (int i = 0; i < 5; ++i) {
+        ctimer_start( &t_body );
+
+        sleep( 1 );
+
+        ctimer_stop( &t_body );
+        ctimer_lap( &t_body );
+
+        printf( "Done with iteration #%d\n", i );
+    }
+
+    ctimer_stop( &t_total );
+    ctimer_measure( &t_total );
+
+    printf( "\n" );
+    ctimer_print( &t_total, "total" );
+    ctimer_print( &t_body, "loop body" );
     return 0;
-}
 #+end_src
