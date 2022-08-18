@@ -49,12 +49,13 @@
  * POSIX `clock_gettime()`.
  *
  * Stopwatch utilities:
- * - `ctimer_t`         :: stopwatch struct (start/stop/elapsed timespecs)
+ * - `ctimer_t`         :: type of CTimer stopwatch struct
  * - `ctimer_start()`   :: start stopwatch
  * - `ctimer_stop()`    :: stop stopwatch
  * - `ctimer_reset()`   :: reset elapsed time
  * - `ctimer_measure()` :: measure elapsed time between start & stop
  * - `ctimer_lap()`     :: accumulate elapsed time between start & stop
+ * - `ctimer_print()`   :: print elapsed time in sec with fixed format
  *
  * Timespec struct utilities
  * - `timespec_t`       :: alias for `struct timespec`
@@ -209,7 +210,7 @@ void timespec_add(
 /**
  * Return `timespec` time in sec.
  *
- * @return (t.tv_sec + tv_nsec) in sec
+ * @return (t.tv_sec + t.tv_nsec) in sec
  */
 static inline
 double timespec_sec(
@@ -226,7 +227,7 @@ double timespec_sec(
  * @warning Sub-millisecond resolution (if supported by the system clock) is
  * lost with this function.
  *
- * @return (t.tv_sec + tv_nsec) in msec
+ * @return (t.tv_sec + t.tv_nsec) in msec
  */
 static inline
 long timespec_msec(
@@ -243,7 +244,7 @@ long timespec_msec(
  * @warning Sub-microsecond resolution (if supported by the system clock) is
  * lost with this function.
  *
- * @return (t.tv_sec + tv_nsec) in usec
+ * @return (t.tv_sec + t.tv_nsec) in usec
  */
 static inline
 long timespec_usec(
