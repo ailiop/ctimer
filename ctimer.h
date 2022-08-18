@@ -163,43 +163,44 @@ typedef struct timespec timespec_t;
  * sec and nsec in the `tv_sec` and `tv_nsec` field, respectively, of the output
  * `timespec`.
  *
- * @sa <https://stackoverflow.com/a/53708448/1036677>
+ * @sa https://stackoverflow.com/a/53708448/1036677
  */
 static inline
-void timespec_sub (
-    timespec_t       * td,      /**<[out] time difference in s and ns */
-    timespec_t const   t1,      /**<[in]  start time */
-    timespec_t const   t2       /**<[in]  end time */
+void timespec_sub(
+    timespec_t       * t_diff,  /**<[out] time difference */
+    timespec_t const   t_end,   /**<[in]  end time */
+    timespec_t const   t_start  /**<[in]  start time */
 ) {
-    td->tv_nsec = t2.tv_nsec - t1.tv_nsec;
-    td->tv_sec  = t2.tv_sec  - t1.tv_sec;
-    if ((td->tv_sec > 0) && (td->tv_nsec < 0))  {
-        td->tv_nsec += _NSEC_PER_SEC;
-        td->tv_sec--;
-    } else if ((td->tv_sec < 0) && (td->tv_nsec > 0)) {
-        td->tv_nsec -= _NSEC_PER_SEC;
-        td->tv_sec++;
+    t_diff->tv_nsec = t_end.tv_nsec - t_start.tv_nsec;
+    t_diff->tv_sec  = t_end.tv_sec  - t_start.tv_sec;
+    if ((t_diff->tv_sec > 0) && (t_diff->tv_nsec < 0)) {
+        t_diff->tv_nsec += _NSEC_PER_SEC;
+        t_diff->tv_sec--;
+    } else if ((t_diff->tv_sec < 0) && (t_diff->tv_nsec > 0)) {
+        t_diff->tv_nsec -= _NSEC_PER_SEC;
+        t_diff->tv_sec++;
     }
-    /* (s > 0 & ns > 0) : do nothing (t1 < t2) */
-    /* (s < 0 & ns < 0) : do nothing (t1 > t2) */
+    /* (s > 0 & ns > 0) : do nothing (t_start < t_end) */
+    /* (s < 0 & ns < 0) : do nothing (t_start > t_end) */
 }
 
 
 /**
- * Calculate the sum of two `timespec` structs.  Store time in sec and nsec in
- * the `tv_sec` and `tv_nsec` field, respectively, of the first `timespec`
- * operand.
+ * Calculate the time sum of two `timespec` structs.  Store time in sec and
+ * nsec in the `tv_sec` and `tv_nsec` field, respectively, of the output
+ * `timespec`.
  */
 static inline
-void timespec_add (
-    timespec_t       * t1,      /**<[in,out] accumulation timer */
-    timespec_t const   t2       /**<[in]     added timer */
+void timespec_add(
+    timespec_t       * t_sum,   /**<[out] time sum */
+    timespec_t const   t1,      /**<[in]  time 1 */
+    timespec_t const   t2       /**<[in]  time 2 */
 ) {
-    t1->tv_nsec += t2.tv_nsec;
-    t1->tv_sec  += t2.tv_sec;
-    if (t1->tv_nsec >= _NSEC_PER_SEC) {
-        t1->tv_nsec -= _NSEC_PER_SEC;
-        t1->tv_sec++;
+    t_sum->tv_nsec = t1.tv_nsec + t2.tv_nsec;
+    t_sum->tv_sec  = t1.tv_sec  + t2.tv_sec;
+    if (t_sum->tv_nsec >= _NSEC_PER_SEC) {
+        t_sum->tv_nsec -= _NSEC_PER_SEC;
+        t_sum->tv_sec++;
     }
 }
 
@@ -210,7 +211,7 @@ void timespec_add (
  * @return (t.tv_sec + tv_nsec) in sec
  */
 static inline
-double timespec_sec (
+double timespec_sec(
     timespec_t const t          /**<[in] timespec */
 ) {
     return (double)t.tv_sec
@@ -221,10 +222,13 @@ double timespec_sec (
 /**
  * Return `timespec` time in msec.
  *
+ * @warning Sub-millisecond resolution (if supported by the system clock) is
+ * lost with this function.
+ *
  * @return (t.tv_sec + tv_nsec) in msec
  */
 static inline
-long timespec_msec (
+long timespec_msec(
     timespec_t const t          /**<[in] timespec */
 ) {
     return t.tv_sec * _MSEC_PER_SEC
@@ -235,10 +239,13 @@ long timespec_msec (
 /**
  * Return `timespec` time in usec.
  *
+ * @warning Sub-microsecond resolution (if supported by the system clock) is
+ * lost with this function.
+ *
  * @return (t.tv_sec + tv_nsec) in usec
  */
 static inline
-long timespec_usec (
+long timespec_usec(
     timespec_t const t          /**<[in] timespec */
 ) {
     return t.tv_sec * _USEC_PER_SEC
@@ -252,7 +259,7 @@ long timespec_usec (
  * @return (t.tv_sec + tv_nsec) in nsec
  */
 static inline
-long timespec_nsec (
+long timespec_nsec(
     timespec_t const t          /**<[in] timespec */
 ) {
     return t.tv_sec * _NSEC_PER_SEC
@@ -291,14 +298,25 @@ typedef struct {
  * Measure elapsed time of `ctimer_t` stopwatch in s+ns and *store* it in the
  * `elapsed` timer.
  *
+ * @warning The stopwatch must be started and stopped before the elapsed time
+ * is measured.
+ *
  * @note It is safe (albeit unnecessary) to measure the elapsed time of a
  * stopped timer multiple times.
+ *
+ * @note When measuring the cumulative execution time of non-contiguous chunks
+ * of a program (e.g., the total time for a sub-computation of a loop body),
+ * use `ctimer_lap()`.
+ *
+ * @sa ctimer_lap
+ * @sa ctimer_start
+ * @sa ctimer_stop
  */
 static inline
-void ctimer_measure (
+void ctimer_measure(
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
-    timespec_sub( &(t->elapsed), t->tic, t->toc );
+    timespec_sub( &(t->elapsed), t->toc, t->tic );
 }
 
 
@@ -306,36 +324,52 @@ void ctimer_measure (
  * Measure elapsed time of `ctimer_t` stopwatch in s+ns and *add* it to the
  * `elapsed` timer.
  *
- * @warning It is up to the user to ensure that the `elapsed` field of the input
- * stopwatch has been properly initialized (e.g. with `ctimer_reset()`) before
- * `ctimer_lap()` is called.
+ * @warning The `elapsed` field of the input stopwatch must be properly
+ * initialized (e.g. with `ctimer_reset()`) before calling `ctimer_lap()`.
+ *
+ * @warning The stopwatch must be started and stopped before the elapsed time
+ * is measured.
+ *
+ * @note When measuring the execution time of a single, contiguous chunk of a
+ * program, use `ctimer_measure()`.
+ *
+ * @sa ctimer_reset
+ * @sa ctimer_measure
+ * @sa ctimer_start
+ * @sa ctimer_stop
  */
 static inline
-void ctimer_lap (
+void ctimer_lap(
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
-    timespec_t lap_buf;
-    timespec_sub( &lap_buf, t->tic, t->toc );
-    timespec_add( &(t->elapsed), lap_buf );
+    /* elapsed += toc - tic */
+    timespec_add( &(t->elapsed), t->elapsed, t->toc );
+    timespec_sub( &(t->elapsed), t->elapsed, t->tic );
 }
 
 
 /**
  * Zero out the `elapsed` timer of a `ctimer_t` stopwatch.
+ *
+ * @sa ctimer_lap
  */
 static inline
-void ctimer_reset (
+void ctimer_reset(
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
-    t->elapsed = (timespec_t) {0};
+    t->elapsed = (timespec_t){0};
 }
 
 
 /**
  * Start a `ctimer_t` stopwatch.  Sets the the `tic` timer of the stopwatch.
+ *
+ * @sa ctimer_stop
+ * @sa ctimer_measure
+ * @sa ctimer_lap
  */
 static inline
-void ctimer_start (
+void ctimer_start(
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
     clock_gettime( CLOCK_MONOTONIC, &(t->tic) );
@@ -345,12 +379,17 @@ void ctimer_start (
 /**
  * Stop a `ctimer_t` stopwatch.  Sets the `toc` timer of the stopwatch.
  *
- * @note If the `CTIMER_MEASURE_ON_STOP` preprocessor macro is defined, then
- * `ctimer_stop` also calculates the elapsed time between `tic` and `toc` and
- * stores it in the `elapsed` field.
+ * @note If the `CTIMER_MEASURE_ON_STOP` preprocessor macro is defined _before_
+ * the `ctimer/ctimer.h` library is included in a program, then `ctimer_stop`
+ * also calculates the elapsed time between `tic` and `toc` and stores it in
+ * the `elapsed` field.
+ *
+ * @sa ctimer_start
+ * @sa ctimer_measure
+ * @sa ctimer_lap
  */
 static inline
-void ctimer_stop (
+void ctimer_stop(
     ctimer_t * t                /**<[in,out] stopwatch pointer */
 ) {
     clock_gettime( CLOCK_MONOTONIC, &(t->toc) );
