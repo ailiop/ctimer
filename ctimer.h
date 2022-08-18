@@ -102,6 +102,7 @@
 
 #include <time.h>
 #include <unistd.h>
+#include <stdio.h>
 
 
 /**
@@ -396,6 +397,29 @@ void ctimer_stop(
 #ifdef CTIMER_MEASURE_ON_STOP
     ctimer_measure( t );
 #endif
+}
+
+
+/**
+ * Print a line with the `elapsed` time of a `ctimer_t` stopwatch in seconds.
+ *
+ * The line is printed as:
+ *
+ *      Time(<LABEL>) = XX.XXXXXXXXX sec
+ *
+ * @note This utility function is meant to facilitate standardized printing of
+ * elapsed times which may then be parsed by external programs.
+ *
+ * @sa ctimer_measure
+ * @sa ctimer_lap
+ */
+static inline
+void ctimer_print(
+    ctimer_t const * t,         /**<[in] stopwatch pointer */
+    char     const * label      /**<[in] label/description for printed time */
+) {
+    printf( "Time(%s) = %ld.%09ld sec\n", label,
+            (long)t->elapsed.tv_sec, t->elapsed.tv_nsec );
 }
 
 
