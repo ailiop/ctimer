@@ -17,7 +17,6 @@ CTimer is an include-only header library with C/C++ timer utilities using POSIX
 
 **** Timespec struct utilities
 
-- ~timespec_t~       : alias for ~struct timespec~
 - ~timespec_sub()~   : calculate difference between 2 timespecs
 - ~timespec_add()~   : calculate sum of 2 timespecs
 - ~timespec_sec()~   : timespec tv time in sec (double)
