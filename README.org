@@ -2,8 +2,8 @@
 
 *** Overview
 
-CTimer is an include-only header library with C/C++ timer utilities using POSIX
-~clock_gettime()~.
+CTimer is an include-only header library of C/C++ timer utilities.  CTimer
+functions use [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] with a =CLOCK_MONOTONIC= clock.
 
 **** Stopwatch utilities
 
@@ -24,15 +24,12 @@ CTimer is an include-only header library with C/C++ timer utilities using POSIX
 - ~timespec_usec()~  : timespec tv time in usec (long)
 - ~timespec_nsec()~  : timespec tv time in nsec (long)
 
-*** Requirements
-
-Timers in =ctimer.h= are implemented using [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] with a
-=CLOCK_MONOTONIC= clock.  C compilers may require standard ~c99~ or ~gnu99~ (or
-later).
-
-All functions are defined as ~static inline~.
-
 *** Notes
+
+- All functions in =ctimer.h= are ~static inline~.
+
+- C compilers may require the =c99= or =gnu99= (or later) C standard to use
+  ~clock_gettime()~.
 
 - A CTimer stopwatch struct contains three ~struct timespec~ fields:
   - =tic= marks the beginning of timed region;
@@ -54,7 +51,7 @@ All functions are defined as ~static inline~.
   internally to calculate and store the elapsed time in the input ~ctimer_t~
   object.
 
-*** Example usage
+*** Example
 
 #+begin_src C
 #include <stdio.h>
