@@ -7,7 +7,7 @@
  * @sa <https://github.com/sillycross/mlpds/blob/master/fasttime.h>
  *
  * @file        ctimer.h
- * @version     0.2.0
+ * @version     0.3.0
  * @author      Alexandros-Stavros Iliopoulos
  * @license     MIT
  * @copyright   Copyright (c) 2021 Supertech group, CSAIL, MIT
