@@ -7,7 +7,7 @@
  * @sa <https://github.com/sillycross/mlpds/blob/master/fasttime.h>
  *
  * @file        ctimer.h
- * @version     0.3.0
+ * @version     1.0.0
  * @author      Alexandros-Stavros Iliopoulos
  * @license     MIT
  * @copyright   Copyright (c) 2021 Supertech Research Group, CSAIL, MIT
@@ -414,7 +414,7 @@ void ctimer_stop(
  */
 static inline
 void ctimer_print(
-    ctimer_t const * t,         /**<[in] stopwatch pointer */
+    ctimer_t const   t,         /**<[in] stopwatch pointer */
     char     const * label      /**<[in] label/description for printed time */
 ) {
     if ((label != NULL) && (label[0] != '\0'))
@@ -422,7 +422,7 @@ void ctimer_print(
     else
         printf("Time = ");
 
-    printf("%ld.%09ld sec\n", (long)t->elapsed.tv_sec, t->elapsed.tv_nsec);
+    printf("%ld.%09ld sec\n", (long)t.elapsed.tv_sec, t.elapsed.tv_nsec);
 }
 
 

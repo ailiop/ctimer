@@ -63,8 +63,8 @@ int main() {
     ctimer_measure(&t_total);
 
     printf("\n");
-    ctimer_print(&t_total, "total");
-    ctimer_print(&t_body, "loop body");
+    ctimer_print(t_total, "total");
+    ctimer_print(t_body, "loop body");
     return 0;
 }
 /**! [ctimer_example] */

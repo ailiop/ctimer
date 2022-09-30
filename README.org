@@ -61,11 +61,9 @@ time of a stopwatch is only updated with the ~ctimer_measure()~ and
   between =start= and =end=.
 - ~ctimer_lap()~ /adds/ the =start=-to-=end= duration to the =elapsed= time.
 
-#+begin_quote
-/*Note:*/ If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined
-/before/ including =ctimer.h=, then calling ~ctimer_stop()~ will also call
+*Note:* If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined /before/
+including =ctimer.h=, then calling ~ctimer_stop()~ will also call
 ~ctimer_measure()~ internally.
-#+end_quote
 
 **** Avoid uninitialized measurements
 
@@ -118,8 +116,8 @@ int main() {
     ctimer_measure(&t_total);
 
     printf("\n");
-    ctimer_print(&t_total, "total");
-    ctimer_print(&t_body, "loop body");
+    ctimer_print(t_total, "total");
+    ctimer_print(t_body, "loop body");
     return 0;
 }
 #+end_src
