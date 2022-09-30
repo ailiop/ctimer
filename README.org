@@ -63,25 +63,25 @@ int main() {
     ctimer_t t_total;
     ctimer_t t_body;
 
-    ctimer_start( &t_total );
-    ctimer_reset( &t_body );
+    ctimer_start(&t_total);
+    ctimer_reset(&t_body);
 
     for (int i = 0; i < 5; ++i) {
-        ctimer_start( &t_body );
+        ctimer_start(&t_body);
 
-        sleep( 1 );
+        sleep(1);
 
-        ctimer_stop( &t_body );
-        ctimer_lap( &t_body );
-
-        printf( "Done with iteration #%d\n", i );
+        ctimer_stop(&t_body);
+        ctimer_lap(&t_body);
+        printf("Done with iteration #%d\n", i);
     }
 
-    ctimer_stop( &t_total );
-    ctimer_measure( &t_total );
+    ctimer_stop(&t_total);
+    ctimer_measure(&t_total);
 
-    printf( "\n" );
-    ctimer_print( &t_total, "total" );
-    ctimer_print( &t_body, "loop body" );
+    printf("\n");
+    ctimer_print(&t_total, "total");
+    ctimer_print(&t_body, "loop body");
     return 0;
+}
 #+end_src
