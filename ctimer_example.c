@@ -6,14 +6,14 @@
  * @file        ctimer_example.c
  * @author      Alexandros-Stavros Iliopoulos
  * @license     MIT
- * @copyright   Copyright (c) 2021 Supertech group, CSAIL, MIT
+ * @copyright   Copyright (c) 2021 Supertech Research Group, CSAIL, MIT
  */
 
 
 /******************************************************************************/
 /* MIT License                                                                */
 /*                                                                            */
-/* Copyright (c) 2021 Supertech group, CSAIL, MIT                             */
+/* Copyright (c) 2021 Supertech Research Group, CSAIL, MIT                    */
 /*                                                                            */
 /* Permission is hereby granted, free of charge, to any person obtaining      */
 /* a copy of this software and associated documentation files (the            */
