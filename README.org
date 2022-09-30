@@ -2,8 +2,9 @@
 
 *** Overview
 
-CTimer is an include-only header library of C/C++ timer utilities.  CTimer
-functions use [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] with a =CLOCK_MONOTONIC= clock.
+CTimer is an include-only header library of C/C++ timer utilities.  CTimer uses
+the [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSIX clock_gettime()]] function with a =CLOCK_MONOTONIC= clock to get
+relative time stamps.
 
 **** Stopwatch utilities
 
@@ -24,32 +25,69 @@ functions use [[https://man7.org/linux/man-pages/man3/clock_gettime.3.html][POSI
 - ~timespec_usec()~  : timespec tv time in usec (long)
 - ~timespec_nsec()~  : timespec tv time in nsec (long)
 
-*** Notes
+*** How to use
 
-- All functions in =ctimer.h= are ~static inline~.
+Simply include =ctimer.h= in your source code and use the CTimer stopwatch
+API.
 
-- C compilers may require the =c99= or =gnu99= (or later) C standard to use
-  ~clock_gettime()~.
+**** Compilation and linking
 
-- A CTimer stopwatch struct contains three ~struct timespec~ fields:
-  - =tic= marks the beginning of timed region;
-  - =toc= marks the end of a timed region; and
-  - =elapsed= holds the (cumulative) elapsed time for timed region(s).
+With most modern C/C++ compilers, you do not need to do anything beyond
+including =ctimer.h=
 
-- There are no guarantees regarding the initial values of timespec fields in a
-  ~ctimer_t~ stopwatch.  Querying timespecs that haven't been initialized or
-  measured may return arbitrary results; this includes measuring the elapsed
-  time of an unstopped stopwatch.
+Some C compilers may require the standard =-std=gnu99= (or later) in order to
+use ~clock_gettime()~.  Old C compilers may also require linking with =-lrt=.
 
-- The =elapsed= timespec of a ~ctimer_t~ stopwatch can be reset to 0 using the
-  ~ctimer_reset()~ function.  This is not necessary if timings are only
-  measured using ~ctimer_measure()~, but it /is/ necessary before using
-  ~ctimer_lap()~ with an otherwise un-measured stopwatch.
+**** The ~ctimer_t~ stopwatch
 
-- If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined before
-  =ctimer.h= is included, then ~ctimer_stop()~ also calls ~ctimer_measure()~
-  internally to calculate and store the elapsed time in the input ~ctimer_t~
-  object.
+The stopwatch API works with ~ctimer_t~ structs, referred to as stopwatches,
+which keep track of three timespecs:
+
+1. a start-time (~start~),
+2. an stop-time (~end~), and
+3. an elapsed or accumulated duration (~elapsed~).
+
+**** Starting, stopping, and measuring a ~ctimer_t~ stopwatch
+
+The =start= and =end= times of a ~ctimer_t~ stopwatch are set with functions
+~ctimer_start()~ and ~ctimer_stop()~, respectively.
+
+Measuring and/or accumulating the =elapsed= time interval of a ~ctimer_t~
+stopwatch is separate from setting its =start= and =end= times.  The =elapsed=
+time of a stopwatch is only updated with the ~ctimer_measure()~ and
+~ctimer_lap()~ functions.
+
+- ~ctimer_measure()~ sets the =elapsed= time to be /equal/ to the duration
+  between =start= and =end=.
+- ~ctimer_lap()~ /adds/ the =start=-to-=end= duration to the =elapsed= time.
+
+#+begin_quote
+/*Note:*/ If the preprocessor macro =CTIMER_MEASURE_ON_STOP= is defined
+/before/ including =ctimer.h=, then calling ~ctimer_stop()~ will also call
+~ctimer_measure()~ internally.
+#+end_quote
+
+**** Avoid uninitialized measurements
+
+There are no guarantees regarding the initial values of timespec fields in a
+~ctimer_t~ stopwatch.  Querying timespecs that haven't been initialized or
+measured may return arbitrary results; this includes calling ~ctimer_measure()~
+with an unstopped (or un-started) stopwatch.
+
+The ~ctimer_reset()~ function resets the elapsed time of a ~ctimer_t~ stopwatch
+to 0.  This must be done before using ~ctimer_lap()~ with an otherwise
+un-measured stopwatch.
+
+*** Documentation
+
+To build the CTimer documentation with [[https://www.doxygen.nl/][Doxygen]], run:
+
+#+begin_src shell-session
+$ doxygen doxygen.config
+#+end_src
+
+This will create a =doc/= subdirectory with the documentation in HTML and LaTeX
+format.
 
 *** Example
 
