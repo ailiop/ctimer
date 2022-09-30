@@ -127,14 +127,16 @@ extern "C" {
 
 /* unit conversion constants */
 #ifdef __cplusplus              /* C++ */
-static const auto _MSEC_PER_SEC = 1000;
-static const auto _USEC_PER_SEC = 1000 * 1000;
-static const auto _NSEC_PER_SEC = 1000 * 1000 * 1000;
+namespace {
+    const long _MSEC_PER_SEC = 1000;
+    const long _USEC_PER_SEC = 1000 * 1000;
+    const long _NSEC_PER_SEC = 1000 * 1000 * 1000;
+}
 #else  /* C */
 enum {
-_MSEC_PER_SEC = 1000,
-_USEC_PER_SEC = 1000 * 1000,
-_NSEC_PER_SEC = 1000 * 1000 * 1000
+    _MSEC_PER_SEC = 1000,
+    _USEC_PER_SEC = 1000 * 1000,
+    _NSEC_PER_SEC = 1000 * 1000 * 1000
 };
 #endif  /* __cplusplus */
 
